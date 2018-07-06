@@ -51,8 +51,8 @@ def build_graph(imdb_id):
 
     for s in seasons:
         season_data = id_data[id_data.season == s]
-        hover_text = ["Episode {}: {}".format(e[0],e[1]) \
-            for e in zip(season_data['ep_num'],season_data['ep_name'])]
+        hover_text = ["Episode {}: {} ({})".format(e[0],e[1], e[2]) \
+            for e in zip(season_data['ep_num'],season_data['ep_name'], season_data['ep_rating'])]
 
         trace = go.Scatter(
             x=season_data['ep_num'],
