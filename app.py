@@ -4,6 +4,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 import pandas as pd
+from plotly import tools
 import plotly.graph_objs as go
 from dev.db_build import TVShowDatabase
 
@@ -23,13 +24,6 @@ show_opts = [{'label': row[0],'value': row[1]} for row in zip(df_s['title'],df_s
 
 app.layout = html.Div(
                     [                       
-                        html.Img(src="https://s3-us-west-1.amazonaws.com/plotly-tutorials/logo/new-branding/dash-logo-by-plotly-stripe.png",
-                                style={
-                                    'height': '100px',
-                                    'float': 'right'
-                                },
-                        ),
-
                         dcc.Dropdown(
                             id='shows',
                             options=show_opts,
@@ -44,42 +38,51 @@ app.layout = html.Div(
     [Input(component_id='shows', component_property='value')]
 )
 def update_graph(imdb_id_list):
-    graph_list = []
-    for imdb_id in imdb_id_list:
-        data = df_e[df_e.imdb_id == imdb_id]
-        traces = []
-
-        for i in sorted(data.season.unique()):
-            season_data = data[data.season == i]
-            season_figure = go.Scatter(
-                                x=season_data["ep_num"],
-                                y=season_data["ep_rating"],
-                                mode="markers",
-                                opacity=0.3,
-                                marker={
-                                            "size": 15,
-                                            "line": {"width": 0.5, "color": "white"}
-                                        },
-                                name='season-{}-graph'.format(i)
-                            )
-            traces.append(season_figure)
-        
-        graph_list.append(dcc.Graph(
-                    id=imdb_id + "-graph",
-                    figure=
-                        {
-                            'data': traces,
-                            'layout': go.Layout(
-                                xaxis={'title': "Episode Number"},
-                                yaxis={'title': "Rating"},
-                                hovermode='closest'
-                            )
-                        }
-                    )
-        )
-
+    graph_list = [build_graph(imdb_id) for imdb_id in imdb_id_list]
+            
     return graph_list
 
+def build_graph(imdb_id):
+    show_name = df_s[df_s.imdb_id == imdb_id]['title'].values[0]
+    id_data = df_e[df_e.imdb_id == imdb_id]
+    seasons = [int(i) for i in sorted(id_data.season.unique())]
+
+    fig = tools.make_subplots(rows=1, cols=int(max(seasons)), shared_yaxes=True)
+
+    for s in seasons:
+        season_data = id_data[id_data.season == s]
+        hover_text = ["Episode {}: {}".format(e[0],e[1]) \
+            for e in zip(season_data['ep_num'],season_data['ep_name'])]
+
+        trace = go.Scatter(
+            x=season_data['ep_num'],
+            y=season_data['ep_rating'],
+            text=hover_text,
+            hoverinfo='text',
+            mode='markers',
+            opacity=0.75,
+            marker={
+                'size': 5
+            },
+            name="season-{}-graph".format(s)
+        )
+
+        fig.append_trace(trace, 1, s)
+        fig['layout']['xaxis{}'.format(s)].update(showgrid=False,
+                                                  showticklabels=False,
+                                                  zeroline=False)
+    
+    fig['layout'].update(
+        title=show_name,
+        hovermode='closest',
+        yaxis=dict(
+            autorange=False,
+            range=[0,10],
+            zeroline=False,
+            showgrid=False))
+
+    graph = dcc.Graph(id=imdb_id + "-graph", figure=fig)
+    return graph
 
 if __name__ == "__main__":
     app.run_server(debug=True)                  
