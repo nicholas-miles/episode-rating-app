@@ -2,7 +2,7 @@ import os
 import psycopg2
 import json
 from tqdm import tqdm
-from omdb_scraper import get_omdb_data
+from dev.omdb_scraper import get_omdb_data
 
 class TVShowDatabase():
 
