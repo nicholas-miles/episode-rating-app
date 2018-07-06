@@ -17,6 +17,7 @@ scrapy = "*"
 tqdm = "*"
 "boto3" = "*"
 "psycopg2" = "*"
+scipy = "*"
 
 [dev-packages]
 
