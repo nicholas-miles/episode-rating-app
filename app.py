@@ -16,8 +16,8 @@ app.css.append_css({"external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"
 
 db = TVShowDatabase()
 
-df_s = pd.read_sql("SELECT * FROM shows ORDER BY title", db.conn)
-df_e = pd.read_sql("SELECT * FROM episodes WHERE ep_rating > 0.0", db.conn)
+df_s = pd.read_sql("SELECT * FROM public.shows ORDER BY title", db.conn)
+df_e = pd.read_sql("SELECT * FROM public.episodes WHERE ep_rating > 0.0", db.conn)
 
 show_opts = [{'label': row[0],'value': row[1]} for row in zip(df_s['title'],df_s['imdb_id'])]
 
