@@ -38,9 +38,12 @@ app.layout = html.Div(
     [Input(component_id='shows', component_property='value')]
 )
 def update_graph(imdb_id_list):
-    graph_list = [build_graph(imdb_id) for imdb_id in imdb_id_list]
-            
-    return graph_list
+    try:
+        graph_list = [build_graph(imdb_id) for imdb_id in imdb_id_list]  
+        return graph_list
+
+    except TypeError:
+        pass
 
 def build_graph(imdb_id):
     show_name = df_s[df_s.imdb_id == imdb_id]['title'].values[0]
