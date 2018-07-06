@@ -7,10 +7,13 @@ from dev.omdb_scraper import get_omdb_data
 class TVShowDatabase():
 
     def __init__(self):
-
-        # DATABASE_URL = os.environ['DATABASE_URL']
-        # self.conn = psycopg2.connect(DATABASE_URL, sslmode='require')
-        self.conn = psycopg2.connect(dbname='imdb_data')
+        is_prod = os.environ.get('IS_HEROKU', None)
+        if is_prod:
+            DATABASE_URL = os.environ.get('DATABASE_URL')
+            self.conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        
+        else:
+            self.conn = psycopg2.connect(dbname='imdb_data')
         self.c = self.conn.cursor()
 
         self.TABLES = [
