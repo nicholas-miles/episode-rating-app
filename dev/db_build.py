@@ -8,8 +8,9 @@ class TVShowDatabase():
 
     def __init__(self):
 
-        DATABASE_URL = os.environ['DATABASE_URL']
-        self.conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        # DATABASE_URL = os.environ['DATABASE_URL']
+        # self.conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+        self.conn = psycopg2.connect(dbname='imdb_data')
         self.c = self.conn.cursor()
 
         self.TABLES = [
