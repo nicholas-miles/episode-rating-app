@@ -8,6 +8,7 @@ from dash.dependencies import Input, Output
 # Plotly Libraries
 from plotly import tools
 import plotly.graph_objs as go
+import colorlover as cl
 
 # Scientific libraries
 import pandas as pd
@@ -39,7 +40,7 @@ app.layout = html.Div(
                             multi=True,
                             placeholder="Pick shows to plot"
                         ),
-                        html.Div(id='graph-container', children=[])
+                        html.Div(id='graph-container', children=[], style={'backgroundColor': 'black'})
              ])
 
 @app.callback(
@@ -58,14 +59,19 @@ def build_graph(imdb_id):
     show_name = df_s[df_s.imdb_id == imdb_id].title.values[0]
     id_data = df_e[df_e.imdb_id == imdb_id]
     seasons = [int(i) for i in sorted(id_data.season.unique())]
+    total_seasons = max(seasons)
 
-    fig = tools.make_subplots(rows=1, cols=int(max(seasons)), shared_yaxes=True)
+    fig = tools.make_subplots(rows=1, cols=total_seasons, shared_yaxes=True)
+    
+    color_scale = cl.scales['11']['qual']['Paired']
+    if total_seasons > 11:
+        color_scale = cl.interp(color_scale, total_seasons)
 
     for s in seasons:
         season_data = id_data[id_data.season == s]
 
-        fig.append_trace(scatter_plot(season_data), 1, s)
-        fig.append_trace(best_fit(season_data), 1, s)
+        fig.append_trace(scatter_plot(season_data, color_scale[s - 1]), 1, s)
+        fig.append_trace(best_fit(season_data, color_scale[s - 1]), 1, s)
 
         fig['layout']['xaxis{}'.format(s)].update(showgrid=False,
                                                   showticklabels=False,
@@ -84,9 +90,8 @@ def build_graph(imdb_id):
     graph = dcc.Graph(id=imdb_id + "-graph", figure=fig)
     return graph
 
-def scatter_plot(season_data):
+def scatter_plot(season_data, color):
     season = season_data.season.values[0]
-
     hover_text = ["Episode {}: {} ({})".format(e[0],e[1], e[2]) \
         for e in zip(season_data['ep_num'],season_data['ep_name'], season_data['ep_rating'])]
 
@@ -98,14 +103,14 @@ def scatter_plot(season_data):
         mode='markers',
         opacity=0.3,
         marker={
-            'size': 5
+            'size': 5,
+            'color': color
         },
         name="season-{}-graph".format(season)
     )
-
     return scatter
 
-def best_fit(season_data):
+def best_fit(season_data, color):
     xi = season_data['ep_num']
     A = array([xi, ones(9)])
 
@@ -117,9 +122,11 @@ def best_fit(season_data):
         x=xi,
         y=line,
         mode='lines',
-        opacity=0.75
+        opacity=0.75,
+        marker={
+            'color': color
+        }
     )
-
     return figure
 
 
