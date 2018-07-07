@@ -62,7 +62,7 @@ def build_graph(imdb_id):
     total_seasons = max(seasons)
 
     fig = tools.make_subplots(rows=1, cols=total_seasons, shared_yaxes=True)
-    
+
     color_scale = cl.scales['11']['qual']['Paired']
     if total_seasons > 11:
         color_scale = cl.interp(color_scale, total_seasons)
@@ -82,8 +82,7 @@ def build_graph(imdb_id):
         hovermode='closest',
         showlegend=False,
         yaxis=dict(
-            autorange=False,
-            range=[0,10],
+            autorange=True,
             zeroline=False,
             showgrid=False))
 
@@ -112,7 +111,7 @@ def scatter_plot(season_data, color):
 
 def best_fit(season_data, color):
     xi = season_data['ep_num']
-    A = array([xi, ones(9)])
+    A = array([xi, ones(len(xi))])
 
     y = season_data['ep_rating']
     slope, intercept, r_value, p_value, std_err = stats.linregress(xi,y)
