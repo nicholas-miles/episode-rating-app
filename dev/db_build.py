@@ -9,12 +9,13 @@ class TVShowDatabase():
 
     def __init__(self):
         is_prod = os.environ.get('IS_HEROKU', None)
+        pg_pwd = os.environ.get('pgpwd', None)
         if is_prod:
             DATABASE_URL = os.environ.get('DATABASE_URL')
-            self.conn = psycopg2.connect(DATABASE_URL, sslmode='require', user='postgres', password='purple118')
+            self.conn = psycopg2.connect(DATABASE_URL, sslmode='require', user='postgres', password=pg_pwd)
         
         else:
-            self.conn = psycopg2.connect(dbname='imdb_data', user='postgres', password='purple118')
+            self.conn = psycopg2.connect(dbname='imdb_data', user='postgres', password=pg_pwd)
         self.c = self.conn.cursor()
 
         self.TABLES = [
