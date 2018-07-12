@@ -3,7 +3,7 @@ import psycopg2
 import boto3
 import json
 from tqdm import tqdm
-from omdb_scraper import get_omdb_data
+from dev.omdb_scraper import get_omdb_data
 
 class TVShowDatabase():
 
@@ -11,10 +11,10 @@ class TVShowDatabase():
         is_prod = os.environ.get('IS_HEROKU', None)
         if is_prod:
             DATABASE_URL = os.environ.get('DATABASE_URL')
-            self.conn = psycopg2.connect(DATABASE_URL, sslmode='require')
+            self.conn = psycopg2.connect(DATABASE_URL, sslmode='require', user='postgres', password='purple118')
         
         else:
-            self.conn = psycopg2.connect(dbname='imdb_data')
+            self.conn = psycopg2.connect(dbname='imdb_data', user='postgres', password='purple118')
         self.c = self.conn.cursor()
 
         self.TABLES = [
@@ -52,7 +52,7 @@ class TVShowDatabase():
         ]
 
 
-    def init_tables(self, replace=False):
+    def init_tables(self, replace=True):
         for table in self.TABLES:
             if replace == True:
                 self.c.execute("DROP TABLE IF EXISTS " + table['name'])
