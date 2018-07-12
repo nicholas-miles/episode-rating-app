@@ -1,8 +1,9 @@
 import os
 import psycopg2
+import boto3
 import json
 from tqdm import tqdm
-from dev.omdb_scraper import get_omdb_data
+from omdb_scraper import get_omdb_data
 
 class TVShowDatabase():
 
@@ -19,7 +20,7 @@ class TVShowDatabase():
         self.TABLES = [
             {
                 'name':         "shows",
-                'source_data':  "./imdbscraper/imdbscraper/data/showdata.json",
+                'source_data':  "showdata.json",
                 'ddl':          '''
                                     CREATE TABLE IF NOT EXISTS shows 
                                     (
@@ -34,7 +35,7 @@ class TVShowDatabase():
             },
             {
                 'name':         "episodes",
-                'source_data':  "./imdbscraper/imdbscraper/data/episodedata.json",
+                'source_data':  "episodedata.json",
                 'ddl':          '''
                                     CREATE TABLE IF NOT EXISTS episodes
                                     (
@@ -63,8 +64,15 @@ class TVShowDatabase():
             table['load_func'](table['source_data'])
 
 
+    def get_s3_data(self, filename):
+        client = boto3.client('s3')
+        obj = client.get_object(Bucket='imdb-episode-data', Key=filename)
+
+        return obj['Body']
+
+
     def load_shows_tbl(self, fp):
-        shows = json.load(open(fp))
+        shows = json.load(self.get_s3_data(fp))
         for i in tqdm(shows):
             sql = """ INSERT INTO shows VALUES(%s, %s, %s, %s, %s) """
             imdb_id = i['imdb_id']
@@ -90,7 +98,7 @@ class TVShowDatabase():
 
 
     def load_episodes_tbl(self, fp):
-        episodes = json.load(open(fp))
+        episodes = json.load(self.get_s3_data(fp))
         sql = """INSERT INTO episodes VALUES (%s,%s,%s,%s,%s,%s)"""
         for i in tqdm(episodes):
             ep_data = (

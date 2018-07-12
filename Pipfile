@@ -19,6 +19,7 @@ tqdm = "*"
 "psycopg2" = "*"
 scipy = "*"
 colorlover = "*"
+awscli = "*"
 
 [dev-packages]
 
