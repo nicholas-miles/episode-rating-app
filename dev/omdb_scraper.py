@@ -3,12 +3,8 @@
 URL and JSON tools for OMDB retrieval
 BeautifulSoup for web scraping
 """
-# file modification
 import json
 from contextlib import closing
-# analysis toolkits
-import pandas as pd
-import numpy as np
 from requests import get
 from requests.exceptions import RequestException
 
