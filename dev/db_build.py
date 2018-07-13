@@ -9,12 +9,12 @@ class TVShowDatabase():
 
     def __init__(self):
         is_prod = os.environ.get('IS_HEROKU', None)
-        pg_pwd = os.environ.get('pgpwd', None)
 
         if is_prod:
             DATABASE_URL = os.environ.get('DATABASE_URL')
             self.conn = psycopg2.connect(DATABASE_URL, sslmode='require')   
         else:
+            pg_pwd = os.environ.get('pgpwd', None)
             self.conn = psycopg2.connect(dbname='imdb_data', user='postgres', password=pg_pwd)
 
         self.c = self.conn.cursor()
@@ -117,12 +117,3 @@ class TVShowDatabase():
 
         self.c.execute("""SELECT COUNT(*) FROM episodes""")
         print("loaded {} rows into EPISODES".format(self.c.fetchone()[0]))
-
-    
-
-
-if __name__ == "__main__":
-    db = TVShowDatabase()
-    db.init_tables()
-    print(db.c)
-    raise SystemExit
