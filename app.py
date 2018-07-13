@@ -12,8 +12,9 @@ import colorlover as cl
 
 # Scientific libraries
 import pandas as pd
-from numpy import arange,array,ones
+import numpy as np
 from scipy import stats
+from sklearn import linear_model
 
 # Project Assets
 from dev.db_build import TVShowDatabase
@@ -71,7 +72,7 @@ def build_graph(imdb_id):
         season_data = id_data[id_data.season == s]
 
         fig.append_trace(scatter_plot(season_data, color_scale[s - 1]), 1, s)
-        fig.append_trace(best_fit(season_data, color_scale[s - 1]), 1, s)
+        fig.append_trace(best_fit_dim(season_data, color_scale[s - 1]), 1, s)
 
         fig['layout']['xaxis{}'.format(s)].update(showgrid=False,
                                                   showticklabels=False,
@@ -116,6 +117,8 @@ def best_fit(season_data, color):
     slope, intercept, r_value, p_value, std_err = stats.linregress(X, Y)
     line = slope * X + intercept
 
+    print(type(line))
+
     figure = go.Scatter(
         x=X,
         y=line,
@@ -126,6 +129,28 @@ def best_fit(season_data, color):
         }
     )
     return figure
+
+def best_fit_dim(season_data, color, dim=2):
+    eps = season_data['ep_num']
+
+    X = [[ep ** (d + 1) for d in range(dim)] for ep in eps]
+    Y = season_data['ep_rating']
+
+    clf = linear_model.LinearRegression()
+    clf.fit(X, Y)
+    Y_hat = pd.Series(clf.predict(X))
+
+    figure = go.Scatter(
+        x=eps,
+        y=Y_hat,
+        mode='lines',
+        opacity=0.75,
+        marker={
+            'color': color
+        }
+    )
+    return figure
+
 
 
 if __name__ == "__main__":
