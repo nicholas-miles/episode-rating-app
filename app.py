@@ -24,7 +24,7 @@ from dev.db_build import TVShowDatabase
 #########################
 app = dash.Dash(__name__)
 server = app.server
-app.css.append_css({"external_url": "https://codepen.io/chriddyp/pen/bWLwgP.css"})
+app.css.append_css({"external_url": "https://codepen.io/evsDevs/pen/zLBRLL.css"})
 
 db = TVShowDatabase()
 
@@ -41,7 +41,7 @@ app.layout = html.Div(
                             multi=True,
                             placeholder="Pick shows to plot"
                         ),
-                        html.Div(id='graph-container', children=[], style={'backgroundColor': 'black'})
+                        html.Div(id='graph-container', children=[], )
              ])
 
 @app.callback(
@@ -87,7 +87,7 @@ def build_graph(imdb_id):
             zeroline=False,
             showgrid=False))
 
-    graph = dcc.Graph(id=imdb_id + "-graph", figure=fig)
+    graph = dcc.Graph(id=imdb_id + "-graph", figure=fig, style={'color': 'red'})
     return graph
 
 def scatter_plot(season_data, color):
