@@ -33,15 +33,26 @@ df_e = pd.read_sql("SELECT * FROM public.episodes WHERE ep_rating > 0.0", db.con
 
 show_opts = [{'label': row[0],'value': row[1]} for row in zip(df_s['title'],df_s['imdb_id'])]
 
+colors = {
+    'background':  '#35374A',
+    'text': '#D4D6DD',
+    'items': '#3B3D52',
+
+}
+
 app.layout = html.Div(
-                    [                       
-                        dcc.Dropdown(
-                            id='shows',
-                            options=show_opts,
-                            multi=True,
-                            placeholder="Pick shows to plot"
-                        ),
-                        html.Div(id='graph-container', children=[], )
+                    [   
+                    html.Div(className='header', style={'display': 'flex'}, children=[
+                        html.Img(src="/assets/tv.svg"),
+                        html.H1(children='Episode Ratings')  
+                        ]),                  
+                    dcc.Dropdown(
+                        id='shows',
+                        options=show_opts,
+                        multi=True,
+                        placeholder="Pick shows to plot",
+                    ),
+                    html.Div(id='graph-container', children=[])
              ])
 
 @app.callback(
@@ -85,9 +96,15 @@ def build_graph(imdb_id):
         yaxis=dict(
             autorange=True,
             zeroline=False,
-            showgrid=False))
+            showgrid=False),
+        paper_bgcolor= '#3B3D52',
+        plot_bgcolor = '#3B3D52')
 
-    graph = dcc.Graph(id=imdb_id + "-graph", figure=fig, style={'color': 'red'})
+    graph = dcc.Graph(
+        id=imdb_id + "-graph", 
+        className='imdbgraph', 
+        figure=fig,
+        )
     return graph
 
 def scatter_plot(season_data, color):
